@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#140E1C">
+<link rel="icon" href="purple1.png">
+<title>Open when</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Literata:ital,opsz,wght@0,7..72,300..500;1,7..72,300..500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   OPEN WHEN — tokens
+   ============================================================ */
+:root{
+  --night:      #140E1C;
+  --night-deep: #0C0812;
+  --night-lift: #1E1629;
+  --paper:      #F5EDE2;
+  --paper-warm: #EFE4D5;
+  --paper-edge: #DCCCB6;
+  --ink:        #2A2436;
+  --ink-soft:   #5C5266;
+  --wax:        #8E2F42;
+  --wax-deep:   #6B1F30;
+  --rose:       #D9A0A8;
+  --thread:     #C9A86A;
+  --lamp:       rgba(201,168,106,.16);
+
+  --serif: "Fraunces", Georgia, serif;
+  --read:  "Literata", Georgia, serif;
+
+  --ease: cubic-bezier(.22,.61,.36,1);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100% }
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--night);
+  color:var(--paper);
+  font-family:var(--read);
+  overflow-x:hidden;
+}
+/* the lamp: one warm source, top centre */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(120% 70% at 50% -10%, var(--lamp), transparent 62%),
+    radial-gradient(90% 60% at 50% 110%, rgba(142,47,66,.10), transparent 60%),
+    linear-gradient(180deg, var(--night) 0%, var(--night-deep) 100%);
+}
+body::after{
+  content:"";
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:var(--grain);
+  opacity:.28; mix-blend-mode:overlay;
+}
+.page{position:relative; z-index:1}
+
+:focus-visible{
+  outline:2px solid var(--thread);
+  outline-offset:3px;
+  border-radius:3px;
+}
+
+/* ============================================================
+   Masthead
+   ============================================================ */
+.masthead{
+  max-width:74rem; margin:0 auto;
+  padding:clamp(3.5rem,9vw,7rem) clamp(1.25rem,5vw,3rem) clamp(2rem,4vw,3rem);
+  text-align:center;
+}
+.masthead h1{
+  margin:0;
+  font-family:var(--serif);
+  font-weight:300;
+  font-size:clamp(3.2rem,12vw,7.5rem);
+  line-height:.86;
+  letter-spacing:-.035em;
+  color:var(--paper);
+}
+.masthead h1 em{
+  display:block;
+  font-style:italic;
+  font-weight:400;
+  color:var(--rose);
+  /* optical indent so the italic sits under the roman */
+  margin-left:.06em;
+}
+.masthead .rule{
+  width:clamp(90px,16vw,170px); height:1px;
+  margin:clamp(1.6rem,4vw,2.4rem) auto clamp(1.3rem,3vw,1.8rem);
+  background:linear-gradient(90deg,transparent,var(--thread),transparent);
+}
+.masthead p{
+  margin:0 auto;
+  max-width:38rem;
+  font-size:1.02rem;
+  line-height:1.75;
+  color:rgba(245,237,226,.62);
+}
+.tally{
+  margin-top:1.6rem;
+  font-family:var(--serif);
+  font-style:italic;
+  font-size:1.05rem;
+  color:var(--thread);
+}
+
+/* ============================================================
+   Finder bar
+   ============================================================ */
+.finder{
+  position:sticky; top:0; z-index:40;
+  padding:.9rem clamp(1.25rem,5vw,3rem);
+  background:linear-gradient(180deg, rgba(20,14,28,.95) 60%, rgba(20,14,28,0));
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+}
+.finder-inner{
+  max-width:74rem; margin:0 auto;
+  display:flex; flex-wrap:wrap; gap:.6rem; align-items:center;
+}
+.search{
+  flex:1 1 17rem; position:relative; min-width:0;
+}
+.search svg{
+  position:absolute; left:.95rem; top:50%; transform:translateY(-50%);
+  width:15px; height:15px; color:rgba(245,237,226,.4); pointer-events:none;
+}
+.search input{
+  width:100%;
+  padding:.72rem 1rem .72rem 2.5rem;
+  font:400 .94rem/1.4 var(--read);
+  color:var(--paper);
+  background:rgba(245,237,226,.05);
+  border:1px solid rgba(245,237,226,.13);
+  border-radius:999px;
+  transition:border-color .25s, background .25s;
+}
+.search input::placeholder{color:rgba(245,237,226,.38)}
+.search input:hover{border-color:rgba(245,237,226,.24)}
+.search input:focus{
+  outline:none;
+  border-color:var(--thread);
+  background:rgba(245,237,226,.08);
+}
+.chips{display:flex; gap:.4rem; flex-wrap:wrap}
+.chip{
+  padding:.6rem 1.05rem;
+  font:400 .85rem/1 var(--read);
+  color:rgba(245,237,226,.62);
+  background:transparent;
+  border:1px solid rgba(245,237,226,.13);
+  border-radius:999px;
+  cursor:pointer;
+  transition:color .25s, border-color .25s, background .25s;
+}
+.chip:hover{color:var(--paper); border-color:rgba(245,237,226,.3)}
+.chip[aria-pressed="true"]{
+  color:var(--night);
+  background:var(--paper);
+  border-color:var(--paper);
+}
+.chip.lucky{
+  color:var(--thread);
+  border-color:rgba(201,168,106,.35);
+  font-style:italic;
+  font-family:var(--serif);
+  font-size:.92rem;
+}
+.chip.lucky:hover{background:rgba(201,168,106,.1); border-color:var(--thread); color:var(--thread)}
+
+/* ============================================================
+   The envelopes
+   ============================================================ */
+.shelf{
+  max-width:74rem;
+  margin:0 auto;
+  padding:clamp(1.5rem,4vw,2.5rem) clamp(1.25rem,5vw,3rem) 6rem;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(232px,1fr));
+  gap:clamp(1.4rem,3vw,2.2rem);
+}
+.envelope{
+  position:relative;
+  display:flex; flex-direction:column;
+  padding:0; margin:0;
+  font:inherit; text-align:left;
+  background:
+    linear-gradient(168deg, var(--paper) 0%, var(--paper-warm) 62%, var(--paper-edge) 100%);
+  border:none;
+  border-radius:3px 3px 5px 5px;
+  cursor:pointer;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.5) inset,
+    0 14px 26px -14px rgba(0,0,0,.72),
+    0 2px 6px rgba(0,0,0,.4);
+  transition:transform .42s var(--ease), box-shadow .42s var(--ease), filter .42s var(--ease);
+  will-change:transform;
+}
+.envelope::after{ /* paper grain over the whole envelope */
+  content:"";
+  position:absolute; inset:0; pointer-events:none;
+  background-image:var(--grain);
+  opacity:.16; mix-blend-mode:multiply;
+  border-radius:inherit;
+}
+.envelope:hover,
+.envelope:focus-visible{
+  transform:translateY(-7px) rotate(-.4deg);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.6) inset,
+    0 26px 44px -18px rgba(0,0,0,.8),
+    0 0 0 1px rgba(201,168,106,.28),
+    0 0 34px -6px rgba(201,168,106,.2);
+}
+.envelope:active{transform:translateY(-3px) scale(.995)}
+
+/* cover art sits in a window, like a stamp behind glassine */
+.window{
+  position:relative;
+  margin:12px 12px 0;
+  aspect-ratio:4/3;
+  overflow:hidden;
+  border-radius:2px;
+  background:var(--paper-edge);
+}
+.window img{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+  filter:saturate(.92) contrast(1.02);
+  transition:transform .8s var(--ease), filter .5s;
+}
+.envelope:hover .window img{transform:scale(1.045)}
+.window::after{
+  content:"";
+  position:absolute; inset:0;
+  box-shadow:inset 0 0 0 1px rgba(42,36,54,.14), inset 0 -18px 26px -20px rgba(42,36,54,.5);
+}
+
+.address{
+  padding:1rem 1.05rem 3.2rem;
+  font-family:var(--serif);
+  font-style:italic;
+  font-weight:400;
+  font-size:1.03rem;
+  line-height:1.38;
+  letter-spacing:-.005em;
+  color:var(--ink);
+  text-wrap:balance;
+}
+.address .pre{
+  display:block;
+  font-style:normal;
+  font-weight:500;
+  font-size:.72rem;
+  letter-spacing:.09em;
+  color:var(--ink-soft);
+  opacity:.72;
+  margin-bottom:.4rem;
+}
+
+/* wax seal, bottom-right of the envelope */
+.seal{
+  position:absolute; right:14px; bottom:13px;
+  width:34px; height:34px;
+  border-radius:50%;
+  background:radial-gradient(circle at 34% 30%, #B14257 0%, var(--wax) 42%, var(--wax-deep) 100%);
+  box-shadow:
+    0 2px 5px rgba(0,0,0,.35),
+    inset 0 -2px 4px rgba(0,0,0,.35),
+    inset 0 2px 3px rgba(255,255,255,.22),
+    0 0 0 1px rgba(201,168,106,.45);
+  display:grid; place-items:center;
+  transition:transform .4s var(--ease), opacity .4s, filter .4s;
+}
+.seal svg{width:15px; height:15px; color:rgba(255,235,225,.72)}
+.envelope:hover .seal{transform:rotate(-8deg) scale(1.06)}
+
+/* opened: the seal is broken, the paper has been handled */
+.envelope.is-opened{
+  filter:saturate(.86) brightness(.95);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.35) inset,
+    0 8px 18px -12px rgba(0,0,0,.6);
+}
+.envelope.is-opened .seal{
+  opacity:.55;
+  filter:grayscale(.3);
+  clip-path:polygon(0 0,100% 0,100% 38%,52% 46%,100% 54%,100% 100%,0 100%,0 56%,46% 48%,0 40%);
+}
+.envelope.is-opened .address{color:var(--ink-soft)}
+.opened-note{
+  position:absolute; left:1.05rem; bottom:1.05rem;
+  font:400 .72rem/1 var(--read);
+  color:var(--ink-soft);
+  opacity:.72;
+}
+.envelope:not(.is-opened) .opened-note{display:none}
+
+/* entrance — one orchestrated settle on load */
+.envelope{opacity:0; transform:translateY(18px)}
+.ready .envelope{
+  animation:settle .75s var(--ease) both;
+  animation-delay:var(--d,0ms);
+}
+@keyframes settle{
+  from{opacity:0; transform:translateY(22px) rotate(-1.2deg)}
+  to  {opacity:1; transform:none}
+}
+/* after the entrance, hover transform must win */
+.ready .envelope{opacity:1}
+
+.empty{
+  grid-column:1/-1;
+  padding:4rem 1rem;
+  text-align:center;
+  font-family:var(--serif); font-style:italic;
+  font-size:1.15rem;
+  color:rgba(245,237,226,.5);
+}
+.empty button{
+  display:block; margin:1rem auto 0;
+  background:none; border:none; cursor:pointer;
+  font:400 .95rem/1 var(--read);
+  color:var(--thread);
+  text-decoration:underline; text-underline-offset:4px;
+}
+
+/* ============================================================
+   The reader
+   ============================================================ */
+.backdrop{
+  position:fixed; inset:0; z-index:90;
+  background:rgba(8,5,12,.82);
+  backdrop-filter:blur(7px);
+  -webkit-backdrop-filter:blur(7px);
+  opacity:0; pointer-events:none;
+  transition:opacity .45s var(--ease);
+}
+.backdrop.on{opacity:1; pointer-events:auto}
+
+.reader{
+  position:fixed; z-index:100;
+  left:50%; top:50%;
+  width:min(94vw,44rem);
+  height:min(90vh,52rem);
+  transform:translate(-50%,-50%) scale(.94) translateY(26px);
+  opacity:0; pointer-events:none;
+  display:flex; flex-direction:column;
+  background:linear-gradient(172deg,var(--paper) 0%,var(--paper-warm) 100%);
+  color:var(--ink);
+  border-radius:4px;
+  box-shadow:0 42px 90px -28px rgba(0,0,0,.9), 0 0 0 1px rgba(201,168,106,.2);
+  transition:opacity .45s var(--ease), transform .45s var(--ease);
+  overflow:hidden;
+}
+.reader.on{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1)}
+.reader::after{ /* faint paper grain on the sheet */
+  content:"";
+  position:absolute; inset:0; pointer-events:none;
+  background-image:var(--grain);
+  opacity:.1; mix-blend-mode:multiply;
+}
+
+.reader-head{
+  position:relative;
+  flex:none;
+  padding:1.7rem 1.9rem 1.15rem;
+  border-bottom:1px solid rgba(42,36,54,.1);
+  background:linear-gradient(180deg,rgba(255,255,255,.34),transparent);
+}
+.reader-head h2{
+  margin:0 3rem 0 0;
+  font-family:var(--serif);
+  font-style:italic; font-weight:400;
+  font-size:clamp(1.3rem,3.4vw,1.72rem);
+  line-height:1.24;
+  letter-spacing:-.012em;
+  color:var(--ink);
+  text-wrap:balance;
+}
+.close{
+  position:absolute; top:1.25rem; right:1.25rem;
+  width:34px; height:34px;
+  display:grid; place-items:center;
+  background:transparent;
+  border:1px solid rgba(42,36,54,.16);
+  border-radius:50%;
+  color:var(--ink-soft);
+  cursor:pointer;
+  transition:background .25s, color .25s, border-color .25s, transform .25s;
+}
+.close:hover{background:var(--wax); color:var(--paper); border-color:var(--wax); transform:rotate(90deg)}
+.close svg{width:14px;height:14px}
+
+.sheet{
+  flex:1 1 auto;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:1.8rem 1.9rem 2.4rem;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(42,36,54,.25) transparent;
+}
+.sheet::-webkit-scrollbar{width:9px}
+.sheet::-webkit-scrollbar-thumb{background:rgba(42,36,54,.22); border-radius:99px; border:3px solid transparent; background-clip:content-box}
+
+.plate{
+  float:right;
+  width:clamp(120px,32%,180px);
+  margin:.2rem 0 1rem 1.4rem;
+  border-radius:2px;
+  background:var(--paper-edge);
+  padding:7px 7px 24px;
+  box-shadow:0 8px 18px -10px rgba(42,36,54,.55), 0 0 0 1px rgba(42,36,54,.09);
+  transform:rotate(1.6deg);
+}
+.plate img{width:100%; display:block; border-radius:1px}
+
+.body-text{
+  font-family:var(--read);
+  font-size:1.02rem;
+  line-height:1.82;
+  color:var(--ink);
+  white-space:pre-wrap;
+  overflow-wrap:break-word;
+  max-width:64ch;
+}
+.body-text strong{font-weight:600; color:#1E1926}
+.body-text a{color:var(--wax)}
+/* checklist letters (film picks) */
+.body-text .mt-4{white-space:normal}
+.body-text .flex{display:flex; align-items:flex-start; gap:.6rem; white-space:normal}
+.body-text .mt-4{margin-top:1.1rem; white-space:normal}
+.body-text .space-y-2>*+*{margin-top:.55rem}
+.body-text label{flex:1; cursor:pointer; line-height:1.6}
+.body-text input[type="checkbox"]{
+  appearance:none; -webkit-appearance:none;
+  flex:none; width:16px; height:16px; margin-top:.42rem;
+  border:1.5px solid rgba(42,36,54,.32);
+  border-radius:3px;
+  background:transparent;
+  cursor:pointer;
+  transition:background .2s, border-color .2s;
+}
+.body-text input[type="checkbox"]:checked{
+  background:var(--wax) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23F5EDE2' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-6'/%3E%3C/svg%3E") center/13px no-repeat;
+  border-color:var(--wax);
+}
+.body-text input[type="checkbox"]:checked+label{opacity:.5; text-decoration:line-through}
+
+/* prev / next */
+.turn{
+  position:fixed; z-index:101; top:50%;
+  width:46px; height:46px; margin-top:-23px;
+  display:grid; place-items:center;
+  border:1px solid rgba(245,237,226,.18);
+  border-radius:50%;
+  background:rgba(20,14,28,.6);
+  backdrop-filter:blur(6px);
+  color:rgba(245,237,226,.7);
+  cursor:pointer;
+  opacity:0; pointer-events:none;
+  transition:opacity .4s, background .25s, color .25s, border-color .25s;
+}
+.reader.on ~ .turn{opacity:1; pointer-events:auto}
+.turn:hover{background:var(--paper); color:var(--night); border-color:var(--paper)}
+.turn[disabled]{opacity:.2 !important; pointer-events:none}
+.turn svg{width:15px; height:15px}
+#prev{left:max(1rem,calc(50vw - min(47vw,22rem) - 3.6rem))}
+#next{right:max(1rem,calc(50vw - min(47vw,22rem) - 3.6rem))}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width:640px){
+  .shelf{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem}
+  .address{padding:.8rem .8rem 2.9rem; font-size:.92rem}
+  .window{margin:9px 9px 0}
+  .seal{width:28px;height:28px;right:10px;bottom:10px}
+  .seal svg{width:12px;height:12px}
+  .reader{width:100vw;height:100dvh;max-height:none;border-radius:0;top:0;left:0;transform:translateY(20px);}
+  .reader.on{transform:none}
+  .reader-head,.sheet{padding-left:1.15rem;padding-right:1.15rem}
+  .plate{float:none;width:58%;margin:0 auto 1.3rem;transform:none}
+  .turn{display:none}
+  .finder-inner{gap:.45rem}
+  .chip{padding:.55rem .85rem;font-size:.8rem}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important}
+  .ready .envelope{opacity:1; transform:none}
+  .envelope:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <h1>Open when<em>you need me</em></h1>
+    <div class="rule"></div>
+    <p>Twenty-eight letters, sealed until the title finds you. Two a week — no more, no peeking. Take whichever one matches the hour you're in.</p>
+    <p class="tally" id="tally"></p>
+  </header>
+
+  <nav class="finder" aria-label="Find a letter">
+    <div class="finder-inner">
+      <div class="search">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="7" r="4.6"/><path d="M10.5 10.5L14 14" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="What does this moment feel like?" aria-label="Search the letters" autocomplete="off">
+      </div>
+      <div class="chips" role="group" aria-label="Filter">
+        <button class="chip" data-filter="all" aria-pressed="true">All</button>
+        <button class="chip" data-filter="sealed" aria-pressed="false">Sealed</button>
+        <button class="chip" data-filter="opened" aria-pressed="false">Opened</button>
+        <button class="chip lucky" id="lucky" type="button">Pick one for me</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="shelf" id="shelf" aria-label="Your letters"></main>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<article class="reader" id="reader" role="dialog" aria-modal="true" aria-labelledby="reader-title" tabindex="-1">
+  <div class="reader-head">
+    <h2 id="reader-title"></h2>
+    <button class="close" id="close" aria-label="Close this letter">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1 1l12 12M13 1L1 13"/></svg>
+    </button>
+  </div>
+  <div class="sheet" id="sheet"></div>
+</article>
+<button class="turn" id="prev" aria-label="Previous letter"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 1L3 7l6 6"/></svg></button>
+<button class="turn" id="next" aria-label="Next letter"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 1l6 6-6 6"/></svg></button>
+
+<script>
+/* ============================================================
+   Letter data — edit titles, content, images and audio here.
+   ============================================================ */
+const letterData = [
+            {
+                id: 'letter-1',
+                title: "Open when you first receive these letters",
+                content: `Hey you.
+If you are holding this, it means you have just opened a little time capsule. One that does not ask anything from you — just that you open them when the time feels right. These letters are not solutions. They are a shoulder, a whisper, a pause.
+I do not know where you are right now or how you are feeling, but I know you have made it this far — and that matters.
+I have written to every version of you I can imagine: the tired you, the hurt you, the you who needs a shove, or the one who just needs a soft landing. Sometimes we need someone to tell us that, plainly, gently. And sometimes that someone is not family, not a partner, not a therapist — it is just your friend, who has watched you become yourself and never once got bored of the view.
+So consider this page a kind of pact: I will show up for you, even from far away. When you are proud, when you are heavy, when you cannot sleep, or when you just miss the sound of care — you will find something waiting for you here.
+<strong>Here are the rules — please follow them!</strong>
+- Absolutely NO peeking ahead. Curiosity can kill the magic.
+- Open only when the title genuinely matches your moment. These are not distractions, they are lifelines.
+- Again: no peeking! (Unless it is one of those weeks that makes you want to delete the internet — then bend, do not break the rules.)
+- Limit of two letters per week. Spread them out like fireflies, so each one glows.
+- Please do not lose them. I poured time, emotion, and delicate pieces of my heart into every line.
+These letters are not about me. They are about you — you in uncertain hours, you carrying everyone else, you wrestling with hope.
+Still, yes. I miss you. Obviously. Do not let it go to your head.
+Let us begin, whenever you are ready.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-2',
+                title: "Open when you feel overwhelmed by your own mind",
+                content: `<strong>"You are not the darkness you endured. You are the light that refused to surrender." - John Mark Green</strong>
+Hey you,
+Breathe.
+If you are opening this, I imagine your chest feels tight and your thoughts are louder than the room you are sitting in. Maybe you are pacing between tabs. Maybe you are lying on your back, phone in hand, screen too bright but you cannot put it down. Maybe you are doing nothing at all, and it still feels like too much.
+That is the thing about the mind. It turns everything inward. Suddenly you are fighting battles nobody can see. It is exhausting. I know. And you have been here before. You have made it out every time — you have been through enough of them to know they pass. Not easily. Not quickly. But they do.
+Let me sit next to you for a minute. You cannot see me, but I am on your left, closer to the heart, so I can shut up the mind. Just you and me. No performance. No pretending. You do not have to explain anything. You do not have to fix anything right now either. You are allowed to just feel.
+Here is something I have learned: sometimes the loudest days are not caused by external chaos, but by old thoughts resurfacing. Unanswered questions. Insecurity dressed up like logic. Shame disguised as memory. And it tricks you into thinking you are the problem.
+You are not.
+What is happening in your mind right now is not proof that something is wrong with you. It is proof that you are a person who feels deeply, who holds things long after others let them go. You are not crazy. You are not weak. You are just sensitive. Thoughtful. And that can feel like a curse sometimes.
+But it is also what makes you you.
+If your brain is running in spirals, try this:
+- Name five things you can see. Really name them.
+- Touch something cold. Metal, water, your own wrist.
+- Say, out loud: this will pass, it always does, I am not my worst thought.
+You do not have to silence your thoughts. Just give them less volume. Let them be background music, not the main voice.
+And please, drink some water. I know it is cliche, but dehydration makes everything louder. Trust me on this.
+You do not owe anyone productivity when your brain is at war. You do not have to explain why you need space. You do not have to fix yourself to be worth keeping around.
+I love you like this too. The overwhelmed, messy, burnt-out version of you. Not because it is charming. Because it is real. Because it is you, and I did not sign up for the highlight reel.
+Sit with this letter. Breathe. Let go, just for tonight.
+I will be here, in this page, waiting whenever you need to come back.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-3',
+                title: "Open when you can't find motivation",
+                content: `<strong>"Do not wait until the conditions are perfect to begin. Beginning makes the conditions perfect." - Alan Cohen</strong>
+Hey you,
+I have a hunch about what is happening.
+You probably woke up today already feeling tired, and not the physical kind. The kind where the world feels like a wall and everything you have to do is sitting behind it. You want to move, but you cannot. And then that awful voice starts whispering: what is wrong with me?
+Stop right there.
+There is nothing wrong with you. You are not lazy. You are not wasting your potential. You are not failing.
+You are just depleted. (Uhem. I learned this word during my IELTS preparation. Not really preparation. Let us not talk about it.) Maybe burnt out. Maybe uninspired. Maybe scared to start because you know once you do, you will pour every piece of yourself into it, and right now you do not know if you have that in you.
+That is okay.
+Let us reframe it.
+You do not need to want to do the thing. You just need to do the tiniest next step:
+- If it is a task, just open the doc or put the file on your desktop.
+- If it is exercise, change into something stretchy.
+- If it is writing, open a blank page and title it "nothing yet."
+That is it. Not because it is magical. Because movement creates momentum. Waiting for the spark is a trap. The fire is built, not found.
+And if you still do not move today, I want you to know this:
+- Your worth does not vanish on unproductive days.
+- You are not your output.
+- You are not your to-do list.
+- You are not only worth loving when you are achieving.
+Sometimes the most productive thing is pausing. Letting your system reset. Letting your brain breathe. Even machines overheat, and you are human.
+You have been here before. And every single time, eventually, you came back to yourself. You always do. I trust that. I trust you.
+And I am proud of you. Not for pushing through, but for reading this. For being honest. For staying.
+Try again tomorrow. Or do not. I am here either way.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-4',
+                title: "Open when you want a movie rec and don't feel like scrolling for hours",
+                content: `Hey you,
+If you are holding this, then you have probably opened every streaming app known to mankind, scrolled for forty-five minutes, and still come up empty. So I made this little guide for those nights when decision fatigue wins and all you want is a story that actually moves you. No more "just one more trailer." No more half-watched maybes.
+These are films I handpicked for you. Not just because they are good, but because I could picture your face while you watched each one. Some will make you laugh in that ugly way you do when you forget to be embarrassed. Some will remind you how strong you are. And some are just soft, warm, human. Like late-night drives or old notebooks or the smell of rain on hot pavement.
+Tick them off as you go. I want to know which ones wrecked you.
+<div class="mt-4 space-y-2">
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-1">
+        <label for="movie-rec-1"><strong>Booksmart</strong> - Two best friends realise on graduation night that they did everything right and lived none of it, so they cram a whole adolescence into one night.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-2">
+        <label for="movie-rec-2"><strong>Little Women (2019)</strong> - Sisters bound by creativity, love, and the courage to carve their own paths in a changing world.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-3">
+        <label for="movie-rec-3"><strong>Frances Ha</strong> - A woman in her twenties losing her best friend to adulthood. It will hurt in the exact place you keep me.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-4">
+        <label for="movie-rec-4"><strong>Lady Bird</strong> - A girl and her mother and a small town she is desperate to leave. Watch it when you are missing being seventeen.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-5">
+        <label for="movie-rec-5"><strong>Thelma & Louise</strong> - Two women, one car, zero patience left. The blueprint for us if we ever fully snap.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-6">
+        <label for="movie-rec-6"><strong>Now and Then</strong> - Four friends, one summer, and the adult versions of them looking back at it. Have tissues.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-7">
+        <label for="movie-rec-7"><strong>Bridesmaids</strong> - The funniest film ever made about being quietly devastated that your best friend is building a life without you.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-8">
+        <label for="movie-rec-8"><strong>The Farewell</strong> - A family lying to a grandmother out of love. About what we owe the people who raised us.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-9">
+        <label for="movie-rec-9"><strong>Wild</strong> - A woman walking a thousand miles because grief left her nowhere else to put her body.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-10">
+        <label for="movie-rec-10"><strong>Pride & Prejudice (2005)</strong> - Yes, I know. Let me have it. Put it on when the weather is grey and you want to feel something soft.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-11">
+        <label for="movie-rec-11"><strong>Spirited Away</strong> - For the nights you want to be a child who is being taken care of.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-12">
+        <label for="movie-rec-12"><strong>Paddington 2</strong> - I am not joking. This film is a hug. Watch it when the world has been unkind.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-13">
+        <label for="movie-rec-13"><strong>Whisper of the Heart</strong> - About a girl deciding to take her own creative work seriously. Watch it when you are doubting yourself.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-14">
+        <label for="movie-rec-14"><strong>Everything Everywhere All at Once</strong> - Chaos, then a mother and daughter finding each other. You will cry and not fully know why.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-15">
+        <label for="movie-rec-15"><strong>Portrait of a Lady on Fire</strong> - The most beautiful film about looking at someone properly. Barely any dialogue. Put your phone away.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-16">
+        <label for="movie-rec-16"><strong>Coco</strong> - Memory as the thing that keeps people alive. For when you are missing someone.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-17">
+        <label for="movie-rec-17"><strong>Sing Street</strong> - Boys starting a terrible band to impress a girl. It is joy in film form.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-18">
+        <label for="movie-rec-18"><strong>Little Miss Sunshine</strong> - A broken family in a yellow van. Funny until it suddenly is not.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-19">
+        <label for="movie-rec-19"><strong>Persepolis</strong> - A girl growing up between a revolution and an exile. It will feel closer to home than you expect.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-20">
+        <label for="movie-rec-20"><strong>Amelie</strong> - A woman who fixes everyone else's life while avoiding her own. Sound like anyone you know?</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-21">
+        <label for="movie-rec-21"><strong>The Secret Life of Walter Mitty</strong> - For when you are bored of your own life and need permission to go somewhere.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-22">
+        <label for="movie-rec-22"><strong>Julie & Julia</strong> - Two women, decades apart, cooking their way out of feeling stuck.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-23">
+        <label for="movie-rec-23"><strong>My Neighbour Totoro</strong> - Ninety minutes of being small and safe. No plot stress. Just green.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-24">
+        <label for="movie-rec-24"><strong>Ratatouille</strong> - Anyone can cook. Anyone can do the thing. Including you, especially you.</label>
+    </div>
+    <div class="flex items-start">
+        <input type="checkbox" id="movie-rec-25">
+        <label for="movie-rec-25"><strong>Before Sunrise</strong> - Two strangers talking all night. Watch it when you miss long conversations that go nowhere and mean everything.</label>
+    </div>
+</div>
+And if none of these hit, put on whatever you have already seen nine times. That counts too. Comfort is not a lesser choice.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-5',
+                title: "Open when you're cleaning your room at 1 a.m.",
+                content: `Hey you,
+So it is one in the morning and you are suddenly folding things.
+I know exactly what this is. This is not cleaning. This is your brain trying to put something in order because something inside you is not.
+It is okay. This is one of the more productive ways of falling apart, honestly. Better than the 3 a.m. scroll. Better than rereading old messages. At least at the end of this you have a clean floor.
+But can I say something while your hands are busy?
+Whatever it is you are trying to tidy out of yourself tonight, you do not have to solve it before morning. You are allowed to just put the cup in the sink and go to bed with the question still open.
+Also, and I say this with love: you are about to find something you were not looking for. A receipt. A hairband. Something with a memory attached. And you are going to sit on the floor holding it for twenty minutes. I know you. Give yourself the twenty minutes. Then get up.
+Put on music. Not the sad playlist. You know the one I mean, the one that makes it worse and you put on anyway because some part of you wants to feel it fully. Fine. Play it once. Then switch.
+Do not reorganise the whole wardrobe at 1 a.m. You will hate yourself at 3 a.m. standing in a bigger mess than you started with. Ask me how I know.
+Do this instead:
+- One surface. Just one. Clear it completely.
+- Throw out three things you have been keeping for no reason.
+- Open a window for two minutes even if it is cold.
+- Then stop. Leave the rest.
+Tomorrow-you will be so quietly grateful to tonight-you. That is a real kind of love, you know. Doing something small for the version of you who has to wake up.
+Now drink water and go to sleep. I mean it.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-6',
+                title: "Open when you finally get what you were working for",
+                content: `Hey you,
+STOP.
+Before you do the thing you always do — before you say it was luck, or the timing, or that anyone could have done it, or that it is not that big a deal actually — stop.
+You did that.
+You. The one who kept going on the days it made no sense to keep going. The one who was tired and did it anyway. The one who cried about it at some point and then got up and opened the laptop again. Nobody handed you this. I was there. I watched you earn it in the least glamorous way possible, which is the only way anyone earns anything.
+I need you to sit in it for a full minute before your brain starts looking for the next mountain. I know you. The second you reach the top of something, you start scanning the horizon for what is higher. That instinct will serve you your whole life and it will also rob you blind if you let it.
+So: one minute. Feel it. Let it be enough.
+Now some things I want you to actually do:
+- Tell somebody. Out loud. Not a humble caption. Say the real sentence: I did this, and I am proud.
+- Take a photo of today. Not for anyone. For the version of you in three years who forgets she was ever capable of this.
+- Buy yourself something small and ridiculous. This is non-negotiable.
+- And call me, obviously. I want the full version with all the boring details you think I do not want. I want them.
+Here is the part I need you to hear most.
+This does not make you more worth loving. You were already all the way worth it, on the days nothing worked, on the days you produced nothing at all. The win is not proof of your value. It is just proof that you are stubborn, which I already knew.
+But God, I am so proud. Insufferably proud. I am going to be unbearable about this for weeks.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-7',
+                title: "Open when you need a verse of quran",
+                content: `Hey you,
+I am not going to preach. You know more than me on some days, and less on others, and that is how it goes between people who are both still trying.
+I just want to put these here, quietly, like leaving tea outside a closed door.
+<strong>"So verily, with the hardship, there is relief. Verily, with the hardship, there is relief."</strong> - Ash-Sharh 94:5-6
+Twice. He says it twice. As if He knew we would not believe it the first time.
+<strong>"And He found you lost and guided you."</strong> - Ad-Duha 93:7
+You are not the first person to be lost. Being lost is a stage, not a verdict.
+<strong>"Allah does not burden a soul beyond that it can bear."</strong> - Al-Baqarah 2:286
+I know this one is hard to hear on the days it feels exactly like too much. But read it as a statement about your capacity, not about your comfort. He is not saying it will be light. He is saying you are not as fragile as you feel right now.
+<strong>"And it may be that you dislike a thing which is good for you."</strong> - Al-Baqarah 2:216
+For the door that closed. For the thing you did not get. For the person who left.
+<strong>"Indeed, in the remembrance of Allah do hearts find rest."</strong> - Ar-Ra'd 13:28
+If you have been away from it for a while and that makes you feel too ashamed to come back — that shame is not from Him. The door does not get harder to open the longer you leave it.
+Pray if you can. If you cannot manage the whole thing, sit and say whatever is true. He is not marking it.
+And if today is one of those days where faith feels far away and you are just going through it — that counts too. Showing up while doubting is worth more than showing up while certain.
+I am making dua for you. Specific ones, not vague ones.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-8',
+                title: "Open when you're curious what I'm doing right now",
+                content: `Hey you,
+So. You are wondering where I am. What I am doing. Whether I am sitting in a quiet cafe or curled up in bed, or somewhere in the in-between.
+The truth is, I do not know exactly where I am when you are reading this. Time does that weird thing where we exist in different moments even when we are thinking of each other at the same time.
+But I will tell you what I hope I am doing.
+Maybe I am sipping tea that has gone lukewarm while my mind drifts to something you said before that still makes me smile. Maybe I am watching people walk by, wondering if any of them feel the way you sometimes do at 1 a.m., when the world gets too quiet and the thoughts get too loud.
+Maybe I am doing something entirely ordinary: laundry, groceries, crossing things off a to-do list I barely had the energy to write. Maybe I am reading a new book, or watching a film and mentally forwarding half of it to you.
+But even in the mundane, you show up. In the way I pick up things in a shop because they are so aggressively your taste. In the way I fold something and think, she would have done this worse, and feel very smug about it. In the quiet laugh I let out when I remember how dramatic you get telling a story, and how you always, always make the story longer than it needs to be, and I always let you.
+Maybe I am napping. Let us be honest, there is a high chance I am napping. I have made it a part-time job.
+Maybe I am writing something. Maybe I am looking up at the sky. Maybe I am listening to a song that once played in the background of one of our calls, the ones where neither of us had anything to say and we stayed on anyway.
+Or maybe I am wondering what you are doing right now.
+Maybe you are walking home after a long day, sky going that colour you like. Maybe you are ignoring three texts. Maybe you are about to eat something terrible standing up in your kitchen.
+Whatever it is: I hope it is gentle. And if it is not, text me. I am probably free. I am almost always free for you, which is embarrassing but true.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-9',
+                title: "Open when you're on a long train ride",
+                content: `Hey you,
+There is something about trains.
+Nobody expects anything from you on a train. You are officially unreachable, in transit, between one version of your life and the next. For a few hours you are nobody's problem. I think that is why they make people so honest with themselves.
+So while the window does its thing, humour me.
+Look up. Actually look. Not at your phone. At the light, at the backs of houses, at that specific strip of land that only exists alongside railway lines, where nobody has ever built anything. Someone is standing at a window in one of those houses right now living an entire life you will never know about. Isn't that insane?
+Now, a few things to do with the hours:
+- Text one person you have been meaning to text for weeks. The guilt one. Do it now while you have no excuse.
+- Put on a full album. In order. The way it was meant to be heard. No shuffle. I am serious about this.
+- Write down three things you want that you have not said out loud to anyone. Not goals. Wants. There is a difference.
+- Buy the overpriced snack. It is part of the ritual.
+And if this journey is one of the heavy ones — if you are going towards something difficult, or away from something that hurt — then let the movement do some of the work for you. There is a reason grief and trains go together. You cannot fix anything at this speed. You are allowed to just be carried for a while.
+I like thinking of you in motion. Somewhere between places, with your headphones in, existing.
+Tell me when you arrive. Even just a photo of nothing.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-10',
+                title: "Open when you feel like nobody really sees you",
+                content: `Hey you,
+If you are opening this, maybe today the world feels a little too blurry.
+Or maybe you do.
+Like no one really gets you.
+Like you are just background noise in every room.
+Like your voice disappears halfway through your sentences.
+Like your presence is not heavy enough to ripple anything anymore.
+But I need you to know: I see you.
+I have always seen you.
+Even in the smallest, quietest, most unguarded moments.
+Like how your eyes close when you smile. Really smile. Like the joy is too much to keep inside.
+Or how they look darker when you are tired, with that little line underneath deepening like it is holding the weight of the day for you.
+I noticed the way your eyebrows draw together when you are focused, like you are trying to solve the universe one thought at a time.
+And how your voice gets bolder, faster, when you are talking about something you actually care about, and you do not even notice it happening, and everyone else in the room does.
+I noticed the thing you do where you check if everyone has enough before you take any for yourself.
+I noticed that you apologise for taking up time. You do it constantly. You did it the last time we spoke.
+I noticed that you are the person everyone calls when it falls apart, and I have wondered, often, who you call.
+I noticed you laugh a beat late when you are pretending to be fine, because you are watching everyone else to know when to do it.
+You never noticed that. But I did.
+I noticed that you are kind in ways that cost you something and you have never once mentioned it.
+Even your silences tell stories. Your texts get shorter when sleep is pulling at you. They get longer and funnier when something is wrong and you do not want to say so.
+So no, you are not invisible. You have just been surrounded by people who are not looking properly.
+I am. I have been this whole time.
+Being unseen is not evidence that there is nothing to see. It is evidence that people are busy and distracted and bad at paying attention. That is about them.
+You are not too quiet. You are not forgettable. You are just, apparently, surrounded by people who need glasses.
+Come here. I see you.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-11',
+                title: "Open when you see something beautiful and it makes you think of me",
+                content: `Hey you,
+So.
+You saw something, and your chest whispered her.
+Was it the curve of a balcony that looked like it was sighing?
+Paint peeling like the pages of a novel I would have begged to read?
+Was it the kind of place I would trace with my fingers, or photograph from twenty-seven impossible angles before I ever thought to walk inside?
+I hope you smiled.
+Even just a little.
+Because I know what you saw. And I know how you saw me in it.
+You know me well enough to imagine it: the wide-eyed joy, the quiet gasp, the way I would spin around with my phone like I was filming something important, getting too close, stepping too far, almost tripping over my own delight.
+You know that if it is something I recognise, I will go on and on. About the archways, the rhythm of columns, how the sun pools on the windowsills, how symmetry is not just design, it is a kind of forgiveness.
+You would pretend to listen. You always did. And then two weeks later you would repeat one of my facts to someone else as if it were yours, and I would let you, because that is love actually.
+Some people fall in love with people.
+I fall in love with places. And you have never once made me feel ridiculous for it, which is more than most people manage.
+Here is what I want you to do.
+Take the photo. Send it to me. Do not caption it. Do not explain it. I will know.
+And if you cannot send it, if this is one of those letters you are reading far away from me or long after — just stand there a second longer than you need to.
+That is me. Etched into bricks and shadows and light.
+Still wandering through cities, still yapping about rooftops and broken mosaics, still yours in every alleyway I have never walked down.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-12',
+                title: "Open when you lose someone to death",
+                content: `Hey you,
+I am so sorry.
+I am not going to say the things people say. You will hear them all this week. That they are in a better place. That everything happens for a reason. That time heals. Some of it might even turn out to be true eventually, but right now it lands like a stone and I am not going to throw one at you.
+So instead: I am so sorry. That is the whole sentence. It does not need anything after it.
+Here is what I know about this, from the inside.
+Grief is not sadness. Sadness is a feeling. Grief is a place you have to live in for a while, and it has its own weather, and nobody can tell you when the season changes.
+It will not arrive in order. You will be fine in the morning and destroyed by a plastic bag in the afternoon. You will laugh at something at the funeral and then feel monstrous for it. You are not monstrous. Laughing is not betrayal. The body does what it needs to survive an impossible week.
+You may feel nothing at all at first. That is not coldness. That is shock doing its job, letting it in slowly enough that it does not kill you.
+And the guilt will come. The last conversation. The visit you did not make. The thing you did not say, or said badly. Please hear me: you loved them with the information and the energy you had at the time. Nobody gets to do this perfectly. Nobody.
+Things that actually help, in no particular order: eat something, even if it is bad for you. Drink water. Say their name out loud instead of tiptoeing around it. Let people bring you food. Write down the things you are scared of forgetting, the specific ones, how they said your name, what they always ordered, the stupid phrase they used. Memory blurs faster than you think and those details are the treasure.
+Things that do not help: being useful. Being brave. Reassuring everyone else that you are coping. Give yourself at least a week off from that job.
+You do not have to be strong. You do not have to be graceful about this. You do not have to have a lesson ready.
+I am not going to ask you how you are doing, because that question is a trap. I am going to show up, and sit there, and not need anything from you.
+Call me at any hour. I mean any. I will not even sound annoyed, and you know what that costs me.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-13',
+                title: "Open when a song we ruined together comes on shuffle",
+                content: `Hey you,
+You remember, do you not?
+The way neither of us could actually sing it, and neither of us cared.
+The way one of us started and the other came in a full half-second late, every single time, like we had rehearsed being bad at it.
+I think that was the moment the universe quietly clapped. Not loud. Just a soft thunder, two voices syncing over a song that was never that good to begin with.
+And now it is playing again, somewhere you did not choose, in a supermarket or a taxi or on shuffle when you were not braced for it, and your whole face has done something involuntary.
+Good. That is what it is for.
+Here is what I love about this: we have ruined that song permanently. It does not belong to whoever wrote it anymore. It belongs to us, and there is nothing they can do about it. Every time it plays anywhere on earth, in a room neither of us is in, it is quietly ours.
+That is what friendship does to a life, actually. It colonises things. Songs, streets, words, specific foods, a particular way of saying a normal sentence. You cannot get them back afterwards. I have a whole vocabulary I cannot use with other people because it makes no sense without you and I refuse to explain it.
+So when it plays, I hope your heart skips just once. Not out of longing. From that ghost of joy. The kind that only happens when two people are being idiots at the exact same time, without trying, without knowing, just being.
+Now text me. Just the song title, nothing else. I will know.
+And yes, I am still better at the high part. This is not a debate.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-14',
+                title: "Open when you miss home",
+                content: `Hey you,
+Homesickness is such a strange grief. Nobody died. Nothing broke. You can even go back, technically. And yet here you are, missing a place like it is a person.
+I think it is because you are not actually missing a location. You are missing a version of yourself that only existed there. The you who did not have to explain anything. Who knew where everything was. Who had a role in a room without auditioning for it.
+That is a real loss. You are allowed to grieve it even while you are grateful for wherever you are now. Both things fit.
+And I know what is making it worse: the guilt. You worked so hard to get here. People are proud of you. You are not allowed to be sad in the place you fought to reach. Says who? Wanting to be somewhere and missing somewhere else are not contradictions. Adults hold both all the time.
+Here is what I do when it gets loud.
+- Cook the food. Not a substitute, the actual thing, even if you have to walk far for the ingredients. Smell is the shortest route home.
+- Call someone and let them talk about something boring. A neighbour's dispute. A wedding you will not attend. You do not want news, you want the sound.
+- Speak your language out loud, even alone, even to yourself while you wash up. It matters more than people realise.
+- Find one thing where you are that is becoming yours. A bakery, a bench, a route. Home is not found, it is accumulated. Slowly and embarrassingly slowly.
+And listen. You are not less loyal for building a life elsewhere. The place is not keeping score. It will still be there, mostly the same, slightly different, in the way that always feels personal when you go back.
+Also, selfishly: I miss you too. Same season, different reason.
+Go and eat something warm.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-15',
+                title: "Open when it's valentine's day",
+                content: `("You thought I would let you spend Valentine's Day without me? Ugh. You WISH.")
+Hey you,
+I never cared about Valentine's Day.
+I never believed in heart-shaped cliches or overpriced flowers. I used to roll my eyes at all of it. I still do, mostly. It is a day invented to make people feel like they are failing at something.
+But here is the thing nobody tells you: the whole holiday was built around one narrow kind of love, and then everyone just went along with it. As if the person who has seen you at your worst, who has picked you up off a floor, who knows your passwords and your worst opinions and stayed anyway, is somehow the runner-up.
+Absurd. You are not anyone's runner-up. Least of all mine.
+So today, whatever your situation is — whether you are somebody's, or nobody's, or in that undefined thing you have not explained to me properly yet and I am being very patient about — I am claiming part of this day.
+I am not pink. I hate pink, actually, and I do not want to discuss it. I am not roses. I am the one who answers at 2 a.m. That is a different category entirely and frankly a more reliable one.
+So here is my Valentine to you:
+I choose you. Not by accident of family, not by chemistry, not because a season of life put us in the same room. I keep choosing you, over and over, on ordinary days when there is nothing romantic about it at all. That is the version of love that does not get a holiday, and it should.
+Now go and do something indulgent. Buy the chocolate for yourself. Wear the thing. Watch something devastating. Be dramatic about it, you are good at that.
+And if today stings for some reason you have not told me about — call me. I will complain about the holiday with you for as long as you need, with great commitment.
+You do not get to spend Valentine's Day without me. Not completely. Consider this my way of crashing it anyway.
+As always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-16',
+                title: "Open when you can't sleep",
+                content: `Hey you,
+It is late. Or it is early, which is worse.
+First, practically: put the phone down after this. I know. I am aware of the irony of saying that inside a thing you are reading on a screen. Read this one, then put it face down.
+Now. Let us deal with the reason you are awake.
+If it is the replaying kind — the conversation from six years ago, the thing you said at fifteen, the email you sent this afternoon — I want you to know that your brain at 3 a.m. is not a reliable narrator. It has no sense of proportion at this hour. It will take something the size of a pebble and hold it up against a lamp until it covers the whole wall. Everything you are certain about right now, check again at 11 a.m. It will have shrunk. It always does.
+If it is the dread kind, where nothing specific is wrong and your body has decided otherwise: that is chemistry, not prophecy. Your nervous system is misfiring. It is not receiving a warning from the future.
+If it is the loneliness kind — the silence that gets very loud — then here. I am here. Read this line twice. Someone is thinking about you at this exact hour, on purpose.
+Things that actually work, tested extensively by me, a professional insomniac and part-time napper:
+- Get up. Do not lie there negotiating. Go to another room for ten minutes. Your bed should not become the place where you fight.
+- Something warm. Not caffeine, obviously. Do not be clever.
+- Write the thought down. Literally on paper. The brain will keep rehearsing it until it believes it is safely stored.
+- Cool room, socks on. Sounds insane, works.
+- Stop calculating how many hours you have left. I know you are doing it. Every calculation costs you another twenty minutes.
+And if none of it works and the sun comes up on you: fine. You will be tired tomorrow and tired is survivable. One bad night is not the beginning of a collapse. You have had hundreds of these and you are still here, still functioning, still annoying.
+Put the phone down now. I mean it.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-17',
+                title: "Open when you need to know how proud I am of you",
+                content: `Hey you,
+Let me be specific, because vague pride is useless and you would not believe it anyway.
+I am proud of the way you kept going through the stretch that nobody clapped for. The boring middle. Anyone can be impressive at the beginning, when it is new, and anyone can be impressive at the end when there is something to show for it. You were consistent in the part where there was no audience, and that is the only part that actually reveals a person.
+I am proud of how you treat people who cannot do anything for you. I have watched you do this when you did not know I was watching. It is the single fastest way to know someone's character and you pass it every time.
+I am proud that you changed your mind in public about something you were once loud about. Most people would rather be wrong forever than be seen updating.
+I am proud of the thing you were scared of and did anyway. You know which one. You still talk about it like it was no big deal. It was a big deal. I was there for the version of you from before, and she would not have managed it.
+I am proud of how you ask for help now. That took years. I noticed the exact moment it started and I said nothing because I did not want to scare it away.
+I am proud of what you are like when things are hard. Which is: still funny, still checking on other people, still fundamentally kind, just quieter. Some people get cruel when they are struggling. You get gentle. That is rare and I do not think you know it.
+And I am proud of you on the days you produce nothing. That is not me being nice. Your worth was never tied to your output. It was not tied to it when you were failing and it is not tied to it now that you are not.
+If you need someone to be proud of you today and nobody has said it: I have been, constantly, for years, in the background, whether or not you were performing well.
+Sit with that instead of arguing with it. I know you want to argue with it.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-18',
+                title: "Open when you've had a bad day",
+                content: `Hey you,
+Okay. Tell me nothing. You do not have to explain it.
+Just put this somewhere you can see it and do the following, in order, without negotiating:
+1. Take your shoes off. Change out of whatever you have been in all day. Your body is still carrying the day in the clothes.
+2. Water. A full glass. You have not had enough, you never have.
+3. Wash your face or stand under a shower for four minutes. You do not have to enjoy it.
+4. Eat something. Not a project, not a proper meal. Toast counts. Cereal at 9 p.m. counts.
+5. Make one thing around you less chaotic. One. Not the flat.
+Done? Good. Now sit down.
+Here is what I want to say about the day.
+It was a bad day. Not a bad life, not a bad you, not evidence of anything. Days are just days and some of them are genuinely, unfixably bad and the only thing to do is end them.
+You do not have to find the lesson. There is not always a lesson. Sometimes things are just annoying and unfair and then over.
+And if the bad day was your fault — if you snapped at someone, or dropped something important, or were not who you wanted to be — then apologise tomorrow, and then stop. You have a habit of serving the sentence long after the trial is over. It does not make you a better person. It just makes you tired.
+The world has been asking a lot from you lately. I have noticed. You are allowed to be depleted by something that other people manage fine, because you are not other people and you are carrying things they are not.
+Nothing is required of you tonight. Not growth, not reflection, not answering your messages. Put something stupid on TV. The world can wait until 9 a.m.
+And if you want to talk about it, I am here. And if you want to say absolutely nothing about it and send me a video of a cat instead, I am also here, and honestly that is often the better call.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-19',
+                title: "Open when you need someone to talk to",
+                content: `(I am here. One call away, one message away. To listen, not to fix.)
+Hey you,
+If you are holding this letter right now, I want you to pause for a moment and realise what that means. It means you are overwhelmed. Maybe something happened. Maybe nothing happened, and that is exactly what is weighing on you — just the heavy quiet of a world that does not always give you space to feel.
+And in this moment, I wish I could sit next to you and say nothing at all. Just be there, breathing in the same air, existing in the same ache. Because sometimes words do not help. Sometimes what you need is not advice, or solutions, or reasons. You just need someone who stays.
+So let this letter be me staying.
+You do not have to be okay right now. You do not have to make sense or explain. You do not have to smile or reply quickly or pretend you are not unravelling. I am not here for the curated version of you. I am here for the real one. The one who has messy days, who disappears sometimes, who feels too much and says too little.
+And I know you do not want to be too much for anyone. I know you have counted, at some point, how many times you have brought this up. You keep a tally. You think I do not know that.
+You are not too much for me. You never were. There is no tally.
+If something is hurting and your throat closes when you try to name it, let it be. Cry if you need to. Scream into a pillow. Let the dam break, even if you are not sure how to build it back afterwards. You do not have to know yet. You do not have to have it figured out.
+You can just say: I need someone right now.
+That is enough. That is everything.
+I do not care what time it is, or whether we have spoken in days, or whether you even know what is wrong. Reach out. Call me. Message me. Send one word. Send a full voice note with no structure. I would rather have you incoherent than silent.
+And if you cannot reach me, and it is the kind of heavy that does not lift — please tell somebody. A doctor, a helpline, anyone qualified. Loving you does not make me equipped for everything, and I would rather you were properly held than politely loyal to me about it.
+I am not going anywhere.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-20',
+                title: "Open when you miss me",
+                content: `Hey you,
+I miss you too. A lot, actually. Obnoxiously.
+If you are holding this letter, I guess your chest is doing that thing again. That quiet kind of ache. I know it well, because even when I try not to, I miss you constantly.
+But tell me.
+Do you miss the calls after work more, or the way I nap like it is a salaried position?
+Do you miss me overthinking every silence, overdoing every gesture, caring in every way that does not show but was never not real?
+Do you miss how I start being extremely present right when you are about to sleep?
+Do you miss the fact that I say things I do not always mean, but if I care, I really care, because it is not that easy for me to let people in — and you got in anyway, without even trying, which still annoys me slightly?
+Do you miss how I could tell you were lying about being fine just from the shape of your texts?
+Here is the thing about missing somebody who is not gone: it is a good problem. It means it was real enough to leave a dent. People do not ache for acquaintances.
+Distance made us better at this, honestly. We learned to hold each other with words. To make a phone call carry the weight of a whole afternoon. That is a skill. Most friendships die quietly of logistics and ours refused.
+So miss me. Properly, dramatically, the way we do everything. And then do something about it, because unlike a lot of aches, this one has a cure and the cure is a phone.
+Call me. Right now if it is a reasonable hour, and also if it is not.
+I will pick up. I always pick up.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-21',
+                title: "Open when we are mad at each other",
+                content: `(which means we probably both said things we did not mean, or worse, did not say what we should have.)
+Hey you,
+If you are reading this, we are probably both a little bruised.
+Maybe I rolled my eyes too hard. Maybe you went quiet like you always do. Maybe we forgot how to be gentle, even with each other.
+I will say this first: I hate fighting with you.
+Not because I want to be right, but because being at odds with you feels like holding my breath underwater and pretending I am fine.
+I hate the silence after it even more. It feels like we both swallowed our hearts and forgot how to speak.
+I miss you even when I am angry. Especially when I am angry. Even when I do not text. Even when I am being dramatic. Even when I say "do what you want." Even when I want to throw a plate.
+And I know you. You will overthink everything I said. You will stare at the ceiling tonight replaying it and asking yourself if you are difficult to love.
+You are not. You are just human. And so am I.
+But here is something to remember. You and I are not enemies. We are two stubborn people trying to stay close without breaking ourselves in the process.
+We are going to argue. There will be miscommunications. I am going to cry. You are going to go quiet. You have that shut-down-and-go-cold thing and I have that type-and-delete-and-exhale-loudly thing. We are a nightmare, structurally.
+So: let us cool off. Take your walk. Blast your music. Stare at the ceiling. Be furious for a bit, you are entitled.
+And then come back.
+That is the whole deal, actually. That is the only rule I have ever cared about between us. Not never fighting. Coming back.
+Because I have lost people to silences that neither of us meant to make permanent. A week becomes a month becomes something too awkward to fix. I am not doing that with you. I refuse.
+So when you are ready, send a stupid message. Not an apology, not a speech. Anything. A single emoji. I will take it and we will pretend the whole thing was shorter than it was.
+I would still choose you, even with all the mess.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-22',
+                title: "Open when you are about to do the scary thing",
+                content: `Hey you,
+Right. Listen to me.
+Your hands are probably doing that thing. Your heart is going. You have read the same sentence four times and taken in none of it. You are about to walk into a room, or make a call, or send something you cannot unsend.
+Good. That means it matters.
+Here is what I need you to understand about the fear: it is not a warning. Your body cannot tell the difference between danger and significance. It runs the exact same programme for both. So the feeling you are reading as "do not do this" is actually just "this counts." Those are indistinguishable from the inside, and almost everyone gets it wrong.
+You are not underprepared. You have prepared more than the situation needs and more than most of the people in that room. I know because you told me about it four separate times and I listened to all four.
+Now some practical things, because you spiral without instructions:
+- Slow the exhale. Longer out than in. That is the whole trick and it is annoyingly effective.
+- Go in with one sentence, not a script. If you memorise a script, you will panic when it derails, and it will derail.
+- Assume they are not thinking about you nearly as much as you think. Nobody is. Everyone is managing their own nonsense.
+- If your voice shakes, keep going. A shaking voice is not a verdict. Nobody remembers it but you.
+And the worst case. Let us actually say it out loud instead of letting it live in the fog: you do it badly, and it does not work, and it is embarrassing for about three weeks.
+That is it. That is the floor. And you have survived worse than that with far less warning.
+The thing you are scared of is not the failing. It is being seen trying. Wanting something visibly is the most exposed thing a person can do. You have always found it easier to pretend you did not care that much.
+Care. Openly. In front of people. Let it be obvious.
+And whatever happens, we are getting food afterwards and you are telling me everything, including the parts that make you wince. Especially those.
+Go. You are ready. You have been ready for a while.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-23',
+                title: "Open when someone breaks your heart",
+                content: `Hey you,
+Oh, love. Come here.
+First: I am not going to say anything bad about them yet. I know that is my job and I will do it later, with enthusiasm and detail. But right now, while it is fresh, you might still love them, and if I trash them now you will only defend them and then feel stupid. So: later. It is coming. I have notes.
+Here is what is true tonight.
+This hurts exactly as much as you think it does. It is not an overreaction. Your body is processing this as a loss because it is one. Not just the person. The future you had already half-built in your head, the plans, the version of yourself that existed in their company. That is several losses in a trench coat, and you are grieving all of them at once.
+So no, you are not being dramatic. Stop apologising for the volume of it.
+Things that will happen, so you are not blindsided:
+- You will be fine for six hours and then destroyed by something trivial. A song, a receipt, a street.
+- You will want to text them. Constantly. Around day four, you will build an extremely convincing argument for why one message is actually healthy and mature. It will not be. Send it to me instead. I will read all of them, including the unhinged ones.
+- You will replay it looking for the exact moment it went wrong, as if finding it would let you go back. There is no such moment. It was hundreds of small ones and nobody could have caught them all.
+- You will miss them most at the boring times. Not the romantic ones. Tuesday evenings. That is normal and nobody warns you.
+And the thing you are quietly scared of: that this says something about you. That you are hard to stay with. That you were too much, or not enough, or fundamentally unpickable.
+It does not. People leave for their own reasons, and those reasons are usually about their capacity, not your worth. Somebody's inability to hold you is not a review of you.
+Practical instructions, since you are not currently capable of decisions:
+Eat something today. Do not look at their profile — get someone else to change your password if you must. Do not make any large decisions this month. Do not cut your own hair.
+And do not let anyone rush you. There is no correct timeline. Anyone who says "still?" has never been properly wrecked and I do not trust them.
+I am available at any hour for any purpose: crying, ranting, silence, distraction, or building the case against them, which I will do beautifully when you are ready.
+You were whole before them. That did not get repossessed.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-24',
+                title: "Open when you need the truth, not comfort",
+                content: `Hey you,
+Okay. You asked for this one. Remember that in about ninety seconds.
+Everyone in your life is going to tell you what you want to hear, because they like you and because it is easier. I am not going to, because you did not build this friendship out of easy, and because you would do the same for me and I would hate every second of it.
+So, some things, said plainly:
+You already know the answer. You have known for a while. You are not confused, you are looking for permission, or for someone to tell you it will not cost anything. It will cost something. That is not a reason not to do it.
+The situation you keep describing to me has not changed in a long time. You have changed how you describe it. Notice that.
+You are waiting for certainty that is not coming. Nobody gets the full information. At some point you just decide with what you have and accept that you might be wrong, and being wrong is survivable — much more survivable than the waiting, which is eating you.
+You are very good at being generous to people who are not being generous back, and you have started calling that loyalty. It is not loyalty. Loyalty goes both directions or it is just a habit you cannot afford.
+And: some of this is your part. Not all. But some. I am not going to let you build a story where you are only ever the one it happened to, because that story is comforting and it leaves you powerless, and you are not powerless.
+Now the other half, because I am honest and not cruel:
+You are capable of doing the hard version of this. I have seen you do harder with less support. You are not fragile, and I think you have started treating yourself as though you were.
+Whatever you choose, I am not going anywhere. That is not conditional on you taking my advice. You can ignore every word of this, and I will still be here, and I will not bring it up later with a smug face. Well. Probably not.
+But you asked for the truth, and the truth is: do the thing you have been avoiding. You have been circling it for months and you are exhausted from the circling, not from the thing.
+I love you. That is why this letter is like this.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-25',
+                title: "Open when you are about to text someone you should not",
+                content: `Hey you,
+Put the phone down.
+I know. You have already typed it. It is sitting there. It is, in your opinion, very casual and very normal and not at all revealing.
+It is not. I have read your casual. Your casual has a full paragraph structure and three revisions.
+Let us do this properly. Answer honestly, nobody is watching:
+What do you want to happen after you send it? Not what you are telling yourself. The real hope. The one underneath. You want them to respond in a specific way, with a specific energy, that proves a specific thing.
+They will not do that. That is the part that never happens. They will reply in eleven hours with something flat, and you will spend the evening doing forensics on it, and you will feel worse than you do right now, which — I want to be clear — is the best you will feel all night if you do not send it.
+And if they do not reply at all, you will have handed them information about how much you are still thinking about it. For free.
+Here is the thing. The urge is not really about them. It is about the hour, and the quiet, and the fact that something in you is unresolved and wants to poke it to see if it still hurts. It does. It will. Poking it does not answer the question, it just restarts the clock.
+So:
+- Screenshot the message. Send it to me instead. I will respond immediately and probably say something unhinged.
+- Then delete it from the actual thread. Not the draft. Delete it.
+- Then put the phone in another room. Physically. Distance is the only reliable technology here.
+- Then tomorrow at 11 a.m., when you are a real person again, read it back. If you still want to send it in daylight, with a clear head, having eaten — send it. I will support you. Genuinely.
+You will not want to. You never do.
+You have made it however many days. Do not reset the counter over a bad hour.
+I am awake. Text me instead. Say literally anything.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-26',
+                title: "Open when the mirror is being cruel",
+                content: `Hey you,
+Get away from it. Genuinely. Step back, or turn the light on properly, or stop.
+I know that face you are making. I have watched you do this in changing rooms and in bathrooms at other people's parties. You go very quiet and you stop making eye contact with yourself.
+Here is what I want you to know about that reflection: it is not neutral information. What you see is filtered through whatever mood you arrived in. The same body looks entirely different to you depending on the week, the light, the sleep, the hormones, whether someone was kind to you that day. Nothing about you has changed in the last hour, but the way you are reading it has, completely. That should tell you something about how much authority to give it.
+And the person you are comparing yourself against does not exist. Not exaggerating — she is composed of angles, lighting, a lens, and forty rejected takes. You are comparing your unedited body, seen from your worst angle, in bad overhead light, to somebody's best possible manufactured output. That is not a fair fight and you would never let me do it.
+Now can I tell you what I actually see?
+I see the face that has been in every important room of my life. I see the expression you make right before you say something outrageous, which I can spot from across a street. I see hands I would recognise anywhere. I see the person who looked exactly like this when she was holding me together on one of my worst nights, and I promise you, nobody in that memory was thinking about how you looked.
+Your body is not an ornament awaiting approval. It is the thing that carried you here. It walked you through everything you survived.
+Practical: change the light before you change anything else. Wear the thing that feels good on rather than the thing that looks good hung up. Do not shop for clothes today. Do not step on anything that gives you a number. Eat properly — a lot of this feeling is just a body that has not been fed or slept.
+And if this is a bad stretch rather than a bad hour, tell me. Not for advice. Just so you are not alone in it, and so I know to check in.
+You look like my best friend. That is the highest compliment I have.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-27',
+                title: "Open when we have gone quiet for too long",
+                content: `Hey you,
+So it has been a while.
+Not a fight. Nothing happened. That is almost the worse version, because there is nothing to fix, just an accumulation of days where neither of us was the one to go first.
+I want to say this clearly, because this is the exact point where friendships quietly die and both people always believe it was the other one who stopped trying.
+Nothing is wrong. I am not angry. You have not lost me.
+Here is what actually happened: you got busy, I got busy, a message went unanswered for three days and then answering it felt like it needed to be a big one, so it waited. Then it needed to be even bigger. And now there is a small debt between us that neither of us knows how to pay and it is entirely made up.
+I am cancelling the debt. You owe me nothing. No explanation, no apology, no essay about where you have been.
+Send the next message as though the gap never existed. Start mid-sentence. Send something completely trivial. That is how it is done. The people who last are not the ones who never go quiet — it is the ones who know how to come back without ceremony.
+And if the quiet is because things have been hard and you did not have it in you to be a good friend for a while: I know. That is allowed. I do not need you at full capacity to keep you. I have been the low-capacity one before and you did not charge me for it.
+And if the quiet is because things have been good and full and busy — that is even better, and I want all of it, in order, with too much detail.
+One thing I will say, gently. If you have been going through something and you did not tell me because you did not want to be a burden: I would rather be woken up than protected from your life. Being let in is not the same as being asked for something.
+So. This letter is me going first.
+Consider the silence over. Your turn.
+Always.`,
+                imageSrc: '32.png'
+            },
+            {
+                id: 'letter-28',
+                title: "Open when you are in a room where you do not know anyone",
+                content: `Hey you,
+Right. Find a wall. Stand near it. Hold a drink so your hands have a job. There, you now look like a person with a plan.
+I know this specific misery. The overhead lights, the sense that everyone else arrived in pairs, the way three minutes stretches out into a geological era when you are standing alone.
+Some facts to steady you:
+Roughly a third of that room feels exactly the way you do and is hiding it slightly better or slightly worse. The confident-looking ones are often just louder about being uncomfortable.
+Nobody is watching you. I promise. Everyone is monitoring their own performance too closely to audit yours. The spotlight is pointed inward, at all of them, all the time.
+Now, instructions, because I know you will otherwise leave in twenty minutes and text me from a taxi:
+- Do not approach a pair. Approach a group of three or more, or somebody else alone. Groups of three absorb people easily. Pairs do not.
+- Go to where the food is. It gives everyone a shared excuse to talk.
+- Ask them how they ended up here. It works on everyone, it is not boring, and it lets them choose how much to tell you.
+- Your goal is not to charm the room. Your goal is one decent conversation. One. If you get one, the night was a success and you may leave.
+- You are allowed to leave. After an hour, with no excuse. Say goodnight and go. You do not owe a party your endurance.
+And if it goes badly — if you say something strange and feel it land wrong and then replay it for the entire journey home — remember that they will forget by Thursday and you will be carrying it for a month. That imbalance is not proportionate to the crime. Let it go early.
+You are excellent company. You are just slow to warm up, and rooms like that do not give people time to warm up. It is the format that is wrong, not you.
+Text me from the bathroom. I am serious. I will reply instantly and say something to make you laugh at an inappropriate moment. It is what I am for.
+Always.`,
+                imageSrc: '32.png'
+            }
+        ];
+
+/* ============================================================
+   App
+   ============================================================ */
+(function(){
+  "use strict";
+
+  var OPENED_KEY = "openwhen.opened.v1";
+  var MOVIE_KEY  = "movieChecklistStates"; // kept from the old version
+
+  var shelf    = document.getElementById("shelf");
+  var tally    = document.getElementById("tally");
+  var qInput   = document.getElementById("q");
+  var lucky    = document.getElementById("lucky");
+  var backdrop = document.getElementById("backdrop");
+  var reader   = document.getElementById("reader");
+  var readerTitle = document.getElementById("reader-title");
+  var sheet    = document.getElementById("sheet");
+  var closeBtn = document.getElementById("close");
+  var prevBtn  = document.getElementById("prev");
+  var nextBtn  = document.getElementById("next");
+
+  var filter  = "all";
+  var query   = "";
+  var visible = [];      // ids currently on the shelf, in order
+  var current = null;    // id being read
+  var lastFocus = null;
+
+  /* ---------- opened state ---------- */
+  function readOpened(){
+    try { return JSON.parse(localStorage.getItem(OPENED_KEY)) || {}; }
+    catch(e){ return {}; }
+  }
+  function writeOpened(map){
+    try { localStorage.setItem(OPENED_KEY, JSON.stringify(map)); } catch(e){}
+  }
+  var opened = readOpened();
+
+  function markOpened(id){
+    if (opened[id]) return;
+    opened[id] = Date.now();
+    writeOpened(opened);
+    var card = shelf.querySelector('[data-id="'+id+'"]');
+    if (card){
+      card.classList.add("is-opened");
+      var note = card.querySelector(".opened-note");
+      if (note) note.textContent = "opened " + niceDate(opened[id]);
+    }
+    updateTally();
+  }
+  function niceDate(ts){
+    try {
+      return new Date(ts).toLocaleDateString(undefined,{day:"numeric",month:"short"});
+    } catch(e){ return ""; }
+  }
+  function updateTally(){
+    var total = letterData.length;
+    var read  = letterData.filter(function(l){ return opened[l.id]; }).length;
+    var left  = total - read;
+    tally.textContent = left === 0
+      ? "Every seal is broken. Read them again whenever you like."
+      : left === total
+        ? total + " still sealed"
+        : left + " of " + total + " still sealed";
+  }
+
+  /* ---------- build the shelf ---------- */
+  var SEAL = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 .9l1.5 3.2 3.5.5-2.6 2.5.7 3.5L8 8.9 4.9 10.6l.7-3.5L3 4.6l3.5-.5z"/><circle cx="8" cy="12.8" r="1.5"/></svg>';
+
+  function buildCard(letter){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "envelope";
+    btn.dataset.id = letter.id;
+    if (opened[letter.id]) btn.classList.add("is-opened");
+
+    // title minus the "Open when" prefix, so the eyebrow carries it once
+    var t = letter.title.replace(/^open when\s*/i, "");
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+
+    btn.innerHTML =
+      '<div class="window"><img src="'+letter.imageSrc+'" alt="" loading="lazy" decoding="async"></div>' +
+      '<div class="address"><span class="pre">Open when</span>'+escapeHtml(t)+'</div>' +
+      '<div class="seal" aria-hidden="true">'+SEAL+'</div>' +
+      '<div class="opened-note">'+(opened[letter.id] ? "opened "+niceDate(opened[letter.id]) : "")+'</div>';
+
+    btn.setAttribute("aria-label", letter.title);
+    btn.addEventListener("click", function(){ open(letter.id); });
+    return btn;
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"]/g,function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+    });
+  }
+
+  function render(){
+    var q = query.trim().toLowerCase();
+    var list = letterData.filter(function(l){
+      if (filter === "sealed" && opened[l.id]) return false;
+      if (filter === "opened" && !opened[l.id]) return false;
+      if (q && l.title.toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+
+    visible = list.map(function(l){ return l.id; });
+    shelf.innerHTML = "";
+
+    if (!list.length){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.innerHTML = "Nothing here matches that." +
+        '<button type="button">Show every letter</button>';
+      e.querySelector("button").addEventListener("click", function(){
+        query = ""; qInput.value = ""; setFilter("all");
+      });
+      shelf.appendChild(e);
+      return;
+    }
+
+    var frag = document.createDocumentFragment();
+    list.forEach(function(l, i){
+      var card = buildCard(l);
+      card.style.setProperty("--d", Math.min(i*42, 900) + "ms");
+      frag.appendChild(card);
+    });
+    shelf.appendChild(frag);
+    requestAnimationFrame(function(){ document.body.classList.add("ready"); });
+  }
+
+  function setFilter(next){
+    filter = next;
+    Array.prototype.forEach.call(document.querySelectorAll(".chip[data-filter]"), function(c){
+      c.setAttribute("aria-pressed", String(c.dataset.filter === next));
+    });
+    render();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".chip[data-filter]"), function(c){
+    c.addEventListener("click", function(){ setFilter(c.dataset.filter); });
+  });
+
+  var debounce;
+  qInput.addEventListener("input", function(){
+    clearTimeout(debounce);
+    debounce = setTimeout(function(){ query = qInput.value; render(); }, 140);
+  });
+
+  lucky.addEventListener("click", function(){
+    var pool = letterData.filter(function(l){ return !opened[l.id]; });
+    if (!pool.length) pool = letterData;
+    open(pool[Math.floor(Math.random()*pool.length)].id);
+  });
+
+  /* ---------- the reader ---------- */
+  function open(id){
+    var letter = letterData.find(function(l){ return l.id === id; });
+    if (!letter) return;
+    current = id;
+
+    if (!reader.classList.contains("on")) lastFocus = document.activeElement;
+
+    readerTitle.textContent = letter.title;
+
+    sheet.innerHTML =
+      (letter.imageSrc ? '<figure class="plate"><img src="'+letter.imageSrc+'" alt=""></figure>' : "") +
+      '<div class="body-text">'+letter.content+'</div>';
+    sheet.scrollTop = 0;
+
+    wireChecklist();
+
+    backdrop.classList.add("on");
+    reader.classList.add("on");
+    document.body.style.overflow = "hidden";
+    reader.focus();
+
+    var i = visible.indexOf(id);
+    prevBtn.disabled = i <= 0;
+    nextBtn.disabled = i === -1 || i >= visible.length - 1;
+
+    markOpened(id);
+  }
+
+  function close(){
+    reader.classList.remove("on");
+    backdrop.classList.remove("on");
+    document.body.style.overflow = "";
+    current = null;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function step(delta){
+    var i = visible.indexOf(current);
+    if (i === -1) return;
+    var j = i + delta;
+    if (j < 0 || j >= visible.length) return;
+    open(visible[j]);
+  }
+
+  closeBtn.addEventListener("click", close);
+  backdrop.addEventListener("click", close);
+  prevBtn.addEventListener("click", function(){ step(-1); });
+  nextBtn.addEventListener("click", function(){ step(1); });
+
+  document.addEventListener("keydown", function(e){
+    if (!reader.classList.contains("on")) return;
+    if (e.key === "Escape"){ close(); }
+    else if (e.key === "ArrowLeft"){ step(-1); }
+    else if (e.key === "ArrowRight"){ step(1); }
+  });
+
+  /* keep the film checklist saved, same storage key as before */
+  function wireChecklist(){
+    var boxes = sheet.querySelectorAll('input[type="checkbox"]');
+    if (!boxes.length) return;
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(MOVIE_KEY)) || {}; } catch(e){}
+    Array.prototype.forEach.call(boxes, function(b){
+      if (saved[b.id] !== undefined) b.checked = saved[b.id];
+    });
+    sheet.addEventListener("change", function onChange(e){
+      if (!e.target.matches('input[type="checkbox"]')) return;
+      var state = {};
+      Array.prototype.forEach.call(sheet.querySelectorAll('input[type="checkbox"]'), function(b){
+        state[b.id] = b.checked;
+      });
+      try { localStorage.setItem(MOVIE_KEY, JSON.stringify(state)); } catch(err){}
+    });
+  }
+
+  /* ---------- go ---------- */
+  render();
+  updateTally();
+})();
+</script>
+</body>
+</html>
